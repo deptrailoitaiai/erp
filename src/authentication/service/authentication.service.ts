@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { LoginDto } from "../dtos/login.dto";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
-export class AuthenticationService {
-    async login(loginDto: LoginDto) {
-        
-    }
+export class JsonwebtokenService {
+    constructor(
+        private readonly jwtService: JwtService,
+    ) {}
+
+    
 }

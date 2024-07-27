@@ -1,8 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { RolesUsersEntity } from "./rolesUsers.entity";
-import { FormsEntity } from "./forms.entity";
 import { UsersFormsEntity } from "./usersForms.entity";
-import { UsersEmployeeInformationsEntity } from "./usersEmployeeInformations.entity";
+import { FormsEntity } from "./forms.entity";
+import { UserInformationsEntity } from "./userInformations.entity";
 
 @Entity({ name: "users" })
 export class UsersEntity {
@@ -27,7 +27,6 @@ export class UsersEntity {
     @OneToMany(() => FormsEntity, formsEntity => formsEntity.createBy)
     formsEntity: FormsEntity[];
 
-    @OneToMany(() => UsersEmployeeInformationsEntity, usersEmployeeInformationsEntity =>
-         usersEmployeeInformationsEntity.userId)
-    usersEmployeeInformationsEntity: UsersEmployeeInformationsEntity[];
+    @OneToOne(() => UserInformationsEntity, userInformationEntity => userInformationEntity.userId)
+    userInformationEntity: UserInformationsEntity;
 }

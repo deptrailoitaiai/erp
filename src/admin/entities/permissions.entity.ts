@@ -2,18 +2,18 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RolesPermissionsEntity } from "./rolesPermissions.entity";
 
 export enum moduleEnum {
-    probation = "probation",
-    annual = "annual",
-    information = "information"
+    Probation = "Probation",
+    Annual = "Annual",
+    Information = "Information"
 }
 
 export enum actionEnum {
-    read = "read",
-    readOwner = "readOwner",
-    write = "write",
-    update = "update",
-    delete = "delete",
-    approve = "approve"
+    Read = "Read",
+    ReadAll = "ReadAll",
+    Write = "Write",
+    Update = "Update",
+    Delete = "Delete",
+    Approve = "Approve"
 }
 
 @Entity({ name: "permissions" })

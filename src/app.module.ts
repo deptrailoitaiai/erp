@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AdminModule } from './admin/admin.module';
 import { MySqlConfig } from './config/mysql.config';
-import { FormModule } from './form/form.module';
 import { ConfigModule } from '@nestjs/config';
-import { EmployeeInformationModule } from './employee-information/employee-information.module';
+import { FormsModule } from './forms/forms.module';
+import { InformationsModule } from './informations/informations.module';
 import { AuthenticationModule } from './authentication/authentication.module';
-import configuration from './config/configuration';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     MySqlConfig,
-    AdminModule, FormModule, EmployeeInformationModule, AuthenticationModule
+    AdminModule,
+    FormsModule,
+    InformationsModule,
+    AuthenticationModule,
   ],
   controllers: [],
   providers: [],

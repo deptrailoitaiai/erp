@@ -1,38 +1,43 @@
-import { Check, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UsersEntity } from "./users.entity";
-import { EmployeeInformationsEntity } from "./employeeInformations.entity";
+import { UserInformationsEntity } from "./userInformations.entity";
 import { UsersFormsEntity } from "./usersForms.entity";
 
-export enum formTypeEnum {
-    probation = "probation",
-    annual = "annual",
+export enum FormTypeEnum {
+    Probation = "Probation",
+    Annual = "Annual"
 }
 
 @Entity({ name: "forms" })
-@Check(`"performance" >=1 AND "performance" <= 10`)
-@Check(`"total" >=1 AND "total" <=10`)
-@Check(`"productivity" >= 1 AND "productivity" <= 10`)
 export class FormsEntity {
     @PrimaryGeneratedColumn('uuid', { name: "form_id" })
     formId: string;
 
-    @Column({ name: "form_type", nullable: false , type: "enum", enum: formTypeEnum })
-    formType: formTypeEnum;
+    @Column({ name: "form_type", type: "enum", enum: FormTypeEnum })
+    formType: FormTypeEnum;
 
-    @CreateDateColumn({ name: "year", type: "datetime", nullable: false })
+    @ManyToOne(() => UsersEntity, usersEntity => usersEntity.formsEntity)
+    @JoinColumn({ name: "create_by", referencedColumnName: "userId" })
+    createBy: UsersEntity;
+
+    @ManyToOne(() => UserInformationsEntity, userInformationsEntity => userInformationsEntity.formsEntity)
+    @JoinColumn({ name: "information_id", referencedColumnName: "informationId" })
+    informationId: UserInformationsEntity;
+
+    @Column({ name: "year", type: "date", default: () => 'NOW()' })
     year: Date;
 
     @Column({ name: "achievement", type: "text" })
     achievement: string;
 
-    @Column({ name: "permformance", type: "tinyint" })
+    @Column({ name: "performance", type: "tinyint" })
     performance: number;
 
-    @Column({ name: "productivity", type: "tinyint"})
+    @Column({ name: "productivity", type: "tinyint" })
     productivity: number;
 
-    @Column({ name: "employee_opinion", type: "text" })
-    employeeOpinion: string;
+    @Column({ name: "user_opinion", type: "text" })
+    userOpinion: string;
 
     @Column({ name: "superior_opinion", type: "text" })
     superiorOpinion: string;
@@ -40,16 +45,6 @@ export class FormsEntity {
     @Column({ name: "total", type: "tinyint" })
     total: number;
 
-    @OneToMany(() => UsersFormsEntity, usersFormsEntity => usersFormsEntity.formId, {
-        // cascade: true
-    })
+    @OneToMany(() => UsersFormsEntity, usersFormsEntity => usersFormsEntity.formId)
     usersFormsEntity: UsersFormsEntity[];
-
-    @ManyToOne(() => UsersEntity, usersEntity => usersEntity.formsEntity)
-    @JoinColumn({ name: "create_by", referencedColumnName: "userId" })
-    createBy: UsersEntity;
-
-    @ManyToOne(() => EmployeeInformationsEntity, employeeInformationsEntity => employeeInformationsEntity.formsEntity)
-    @JoinColumn({ name: "employee_id", referencedColumnName: "employeeId" })
-    employeeId: EmployeeInformationsEntity;
 }
