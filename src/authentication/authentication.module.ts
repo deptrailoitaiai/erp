@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { JsonwebtokenService } from './service/authentication.service';
+import { JsonwebtokenService } from './service/jwt.service';
 import { JwtModule } from '@nestjs/jwt';
 import { SECRETKEY } from './secretKey/secretKey';
 import { LoginService } from './service/login.service';
 import { AdminModule } from 'src/admin/admin.module';
+import { AuthenticationController } from './controller/authentication.controller';
 
 @Module({
   imports: [
@@ -14,6 +15,8 @@ import { AdminModule } from 'src/admin/admin.module';
       signOptions: { expiresIn: '24h' },
     }),
   ],
+  controllers: [AuthenticationController],
   providers: [JsonwebtokenService, LoginService],
+  exports: [JsonwebtokenService]
 })
 export class AuthenticationModule {}

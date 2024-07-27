@@ -21,7 +21,7 @@ export class FormsRepository {
     private readonly usersRepo: UsersRepository
   ) {}
 
-  async formModuleOpenForm(openFormDto: OpenFormDto) {
+  async formModuleOpenForm(openFormDto: OpenFormDto, idUserCreateBy: string) {
     if (openFormDto.formType == 'Annual') {
       const getInfor =
         await this.userInformationRepo.formsModuleOpenFormAnnualGetInformationPresave();
@@ -29,7 +29,7 @@ export class FormsRepository {
         getInfor.map((i) =>
           this.formsRepo.create({
             formType: openFormDto.formType,
-            createBy: { userId: 'fbwqkr' },
+            createBy: { userId: idUserCreateBy },
             informationId: i,
           }),
         ),

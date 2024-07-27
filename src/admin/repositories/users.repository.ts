@@ -35,9 +35,16 @@ export class UsersRepository {
       .getMany();
     return getSuperiorId;
   }
-
+ 
   async authenticationModuleLogin(loginFormDto: loginFormDto) {
-    const getEmailPassword = await this.usersRepo.findOneBy({ userEmail: loginFormDto.email });
+    const getEmailPassword = await this.usersRepo
+      .createQueryBuilder('users')
+      .leftJoin(RolesUsersEntity, 'rolesUsers', 'rolesUsers.user_id = users.user_id')
+      .leftJoin(RolesEntity, 'roles', 'roles.role_id = rolesUsers.role_id')
+      .select('users.user_id', 'userId')
+      .addSelect('users.user_password', 'password')
+      .addSelect('roles.role_name', 'role')
+      .getRawMany();
     return getEmailPassword;
   }
 }

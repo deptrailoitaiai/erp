@@ -12,13 +12,16 @@ export class LoginService {
     ) {}
 
     async login(loginFormDto: loginFormDto) {
-        const getEmailPassword = await this.usersRepo.authenticationModuleLogin(loginFormDto)
-        if(!getEmailPassword.userEmail) return ('Invalid email')
+        const getIdPassword = await this.usersRepo.authenticationModuleLogin(loginFormDto)
+        if(!getIdPassword[0].userId) return ('Invalid email')
         
-        const checkPassword = await bcrypt.compare(loginFormDto.password, getEmailPassword.userPassword)
+        const checkPassword = await bcrypt.compare(loginFormDto.password, getIdPassword[0].password)
         if(!checkPassword) return ('Invalid password')
 
-        const payload = { sub: getEmailPassword.userId }
+        const userId = getIdPassword[0].userId
+        const roles = getIdPassword.map(i => i.role)
+
+        const payload = { sub: userId, role: roles } // role name ?
 
         return await this.jwtService.signAsync(payload)
         

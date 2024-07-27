@@ -13,6 +13,7 @@ export class RoleEnum {
   Manager = 'Manager';
   Hr = 'Hr';
   Director = 'Director';
+  Admin = 'Admin';
 }
 
 @Entity({ name: 'roles' })
