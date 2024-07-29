@@ -8,12 +8,12 @@ import {
 import { RolesUsersEntity } from './rolesUsers.entity';
 import { RolesPermissionsEntity } from './rolesPermissions.entity';
 
-export class RoleEnum {
-  Employee = 'Employee';
-  Manager = 'Manager';
-  Hr = 'Hr';
-  Director = 'Director';
-  Admin = 'Admin';
+export enum RoleEnum {
+  Employee = 'Employee',
+  Manager = 'Manager',
+  Hr = 'Hr',
+  Director = 'Director',
+  Admin = 'Admin',
 }
 
 @Entity({ name: 'roles' })

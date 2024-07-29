@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInformationsEntity } from '../entities/userInformations.entity';
 import { Repository } from 'typeorm';
-import { truncate } from 'fs';
 import { FormsEntity } from '../entities/forms.entity';
 import { SaveInformationDto } from 'src/informations/dtos/saveInformation.dto';
 import { UsersEntity } from '../entities/users.entity';
@@ -64,5 +63,15 @@ export class UserInformationsRepository {
       .getRawOne();
 
     return getInformation;
+  }
+
+  async adminModuleCreateUserCreateUserInfor(usersEntity: UsersEntity, role: string) {
+    const createUserInformation = await this.userInformationsRepo.save(this.userInformationsRepo.create({
+      userId: { userId: usersEntity.userId },
+      name: usersEntity.userName,
+      email: usersEntity.userEmail,
+      role: role,
+      probaton: true
+    }))
   }
 }

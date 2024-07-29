@@ -19,6 +19,5 @@ export const MySqlConfig = TypeOrmModule.forRoot({
     entities: [UsersEntity, UsersFormsEntity, RolesEntity, RolesUsersEntity, RolesPermissionsEntity,
         PermissionsEntity, UserInformationsEntity, FormsEntity
     ],
-    // synchronize: true,
-    // autoLoadEntities: true,
+    synchronize: true
 })

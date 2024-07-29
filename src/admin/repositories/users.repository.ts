@@ -1,16 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersEntity } from '../entities/users.entity';
 import { Repository } from 'typeorm';
 import { RolesUsersEntity } from '../entities/rolesUsers.entity';
 import { RolesEntity } from '../entities/roles.entity';
 import { loginFormDto } from 'src/authentication/dto/loginForm.dto';
+import { CreateUserDto, DeleteUserDto } from '../dtos/users.dto';
+import { RolesUsersRepository } from './rolesUsers.repository';
+import { get } from 'http';
+import { UserInformationsRepository } from './userInfomations.repository';
+import { UsersFormsRepository } from './usersForms.repository';
+import { UserInformationsEntity } from '../entities/userInformations.entity';
+import { UsersFormsEntity } from '../entities/usersForms.entity';
+import { FormsEntity } from '../entities/forms.entity';
 
 @Injectable()
 export class UsersRepository {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepo: Repository<UsersEntity>,
+    @Inject(forwardRef(() => RolesUsersRepository))
+    private readonly rolesUsersRepo: RolesUsersRepository,
+    @Inject(forwardRef(() => UserInformationsRepository))
+    private readonly userInformationRepo: UserInformationsRepository,
+    @Inject(forwardRef(() => UsersFormsRepository))
+    private readonly usersFormsRepo: UsersFormsRepository,
   ) {}
   async formModuleSubmitFormAfterSaveGetSuperiorId(role: string[]) {
     if (role.includes('Manager')) {
@@ -47,4 +61,55 @@ export class UsersRepository {
       .getRawMany();
     return getEmailPassword;
   }
+
+  async adminModuleCreateUserCheckUserExists(createUserDto: CreateUserDto) {
+    const getUser = await this.usersRepo.findOneBy({ userEmail: createUserDto.userEmail });
+    if(!getUser.userEmail) return false;
+
+    return true;
+  }
+
+  async adminModuleCreateUserSaveUser(createUserDto: CreateUserDto) {
+    const save = await this.usersRepo.save(this.usersRepo.create({
+      userName: createUserDto.userName,
+      userEmail: createUserDto.userEmail,
+      userPassword: createUserDto.userPassword,
+    }))
+    return save
+  }
+
+  async adminModuleCreateUserSetRole(createUserDto: CreateUserDto, userId: string, role?: string) {
+    if(role) {
+      const getRoleIds = await this.rolesUsersRepo.adminModuleCreateUserGetRoleId(role);
+      const setRole = await this.rolesUsersRepo.adminModuleCreateUserSetRole(createUserDto, getRoleIds, userId);
+      return 
+    }
+
+    const getDefaultRoleId = await this.rolesUsersRepo.adminModuleCreateUserGetDefaultRoleId();
+    const setRole = await this.rolesUsersRepo.adminModuleCreateUserSetRole(createUserDto, getDefaultRoleId, userId);
+    return 
+  }
+
+  async adminModuleDeleteUser(deleteUserDto: DeleteUserDto) {
+    const findUser = await this.usersRepo.findOneBy({ userEmail: deleteUserDto.userEmail });
+    if(!findUser) return 'user not found';
+
+    const deleteUser = await this.usersRepo
+      .createQueryBuilder('us')
+      .leftJoin(RolesUsersEntity, 'ru', 'ru.user_id = us.user_id')
+      .leftJoin(UserInformationsEntity, 'uis', 'uis.user_id = us.user_id')
+      .leftJoin(UsersFormsEntity, 'ufs', 'ufs.user_id = us.user_id')
+      .leftJoin(FormsEntity, 'fs', 'fs.information_id = uis.information_id')
+      .delete()
+      .from(UsersEntity)
+      .from(RolesUsersEntity)
+      .from(UserInformationsEntity)
+      .from(UsersFormsEntity)
+      .from(FormsEntity)
+      .where('us.user_email = :userEmail', { userEmail: deleteUserDto.userEmail })
+      .execute();
+
+    return deleteUser
+  }
+
 }

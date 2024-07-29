@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FormsEntity } from '../entities/forms.entity';
 import { Repository } from 'typeorm';
@@ -16,8 +16,11 @@ export class FormsRepository {
   constructor(
     @InjectRepository(FormsEntity)
     private readonly formsRepo: Repository<FormsEntity>,
+    @Inject(forwardRef(() => UserInformationsRepository))
     private readonly userInformationRepo: UserInformationsRepository,
+    @Inject(forwardRef(() => UsersFormsRepository))
     private readonly usersFormsRepo: UsersFormsRepository,
+    @Inject(forwardRef(() => UsersRepository))
     private readonly usersRepo: UsersRepository
   ) {}
 
@@ -43,7 +46,7 @@ export class FormsRepository {
         getInfor.map((i) =>
           this.formsRepo.create({
             formType: openFormDto.formType,
-            createBy: { userId: 'fbwqkr' },
+            createBy: { userId: idUserCreateBy },
             informationId: i,
           }),
         ),
@@ -186,5 +189,15 @@ export class FormsRepository {
       .execute()
     
     return approveForm
+  }
+
+  async adminModuleCreateDeleteUserGetIdFormSubmited() {
+    const idFormSubmited = await this.formsRepo
+      .createQueryBuilder()
+      .where('performance IS NOT NULL')
+      .orWhere('productivity IS NOT NULL')
+      .select('form_id', 'formId')
+      .getMany();
+    return idFormSubmited.map((id) => id.formId)
   }
 }

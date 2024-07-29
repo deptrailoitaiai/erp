@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { UserInformationsEntity } from "./userInformations.entity";
 import { UsersFormsEntity } from "./usersForms.entity";
@@ -13,7 +13,7 @@ export class FormsEntity {
     @PrimaryGeneratedColumn('uuid', { name: "form_id" })
     formId: string;
 
-    @Column({ name: "form_type", type: "enum", enum: FormTypeEnum })
+    @Column({ name: "form_type", type: "enum", enum: FormTypeEnum, nullable: false })
     formType: FormTypeEnum;
 
     @ManyToOne(() => UsersEntity, usersEntity => usersEntity.formsEntity)
@@ -24,7 +24,8 @@ export class FormsEntity {
     @JoinColumn({ name: "information_id", referencedColumnName: "informationId" })
     informationId: UserInformationsEntity;
 
-    @Column({ name: "year", type: "date", default: () => 'NOW()' })
+    // @Column({ name: "year", type: "date" })
+    @CreateDateColumn({ name: "year" })
     year: Date;
 
     @Column({ name: "achievement", type: "text" })

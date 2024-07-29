@@ -12,7 +12,7 @@ export class UsersFormsEntity {
     userId: UsersEntity;
 
     @ManyToOne(() => FormsEntity, formsEntity => formsEntity.usersFormsEntity)
-    @JoinColumn({ name: "information_id" ,referencedColumnName: "informationId" })
+    @JoinColumn({ name: "form_id" ,referencedColumnName: "formId" })
     formId: FormsEntity;
 
 }

@@ -1,14 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersFormsEntity } from "../entities/usersForms.entity";
 import { Repository } from "typeorm";
 import { UsersEntity } from "../entities/users.entity";
+import { FormsRepository } from "./forms.repository";
 
 @Injectable()
 export class UsersFormsRepository {
     constructor(
         @InjectRepository(UsersFormsEntity)
         private readonly usersFormsRepo: Repository<UsersFormsEntity>,
+        @Inject(forwardRef(() => FormsRepository))
+        private readonly formsRepo: FormsRepository,
     ) {}
 
     async formModuleSubmitFormAfterSaveCheckExisted(formId: string) {
@@ -29,7 +32,27 @@ export class UsersFormsRepository {
         )
     }
 
-    async formModuleGetFormSubmited() {
-        
+    async adminModuleCreateUserGrantFormSubmited(userId: string, submitedFormId: string[]) {
+        const grant = await this.usersFormsRepo.save(submitedFormId.map(i => this.usersFormsRepo.create({
+            userId: { userId: userId },
+            formId: { formId: i }
+        })))
+    }
+
+    async adminModuleDeleteUserDeleteUsersFormsSubmitted(userId: string) {
+        const deleteUsersForms = await this.usersFormsRepo
+            .createQueryBuilder()
+            .delete()
+            .from(UsersFormsEntity)
+            .where('user_id = :userId', { userId: userId })
+            .execute();
+    }
+
+    async adminModuleGrantRoleUserIfManagerGrantFormSubmited(userId: string) {
+        const formIds = await this.formsRepo.adminModuleCreateDeleteUserGetIdFormSubmited();
+        const grant = await this.usersFormsRepo.save(formIds.map(i => this.usersFormsRepo.create({
+            userId: { userId: userId },
+            formId: { formId: i }
+        })))
     }
 }

@@ -14,6 +14,10 @@ import { FormsRepository } from './repositories/forms.repository';
 import { UserInformationsRepository } from './repositories/userInfomations.repository';
 import { UsersRepository } from './repositories/users.repository';
 import { UsersFormsRepository } from './repositories/usersForms.repository';
+import { RolesUsersRepository } from './repositories/rolesUsers.repository';
+import { RolesRepository } from './repositories/roles.repository';
+import { PermissionsRepository } from './repositories/permission.repository';
+import { RolesPermissionsRepository } from './repositories/rolesPermissions.repository';
 
 @Module({
   imports: [
@@ -35,12 +39,17 @@ import { UsersFormsRepository } from './repositories/usersForms.repository';
     UserInformationsRepository,
     UsersRepository,
     UsersFormsRepository,
+    RolesUsersRepository,
+    RolesRepository,
+    PermissionsRepository,
+    RolesPermissionsRepository
   ],
   exports: [
     FormsRepository,
     UserInformationsRepository,
     UsersRepository,
     UsersFormsRepository,
+    UsersFormsRepository
   ],
 })
 export class AdminModule {}
