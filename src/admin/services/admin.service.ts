@@ -11,6 +11,7 @@ import { UsersFormsRepository } from '../repositories/usersForms.repository';
 import { UserInformationsRepository } from '../repositories/userInfomations.repository';
 import { RolesUsersGrantDto, RolesUsersRevokeDto } from '../dtos/rolesUsers.dto';
 import { RolesUsersRepository } from '../repositories/rolesUsers.repository';
+import { RoleEnum } from '../entities/roles.entity';
 
 @Injectable()
 export class AdminService {
@@ -95,8 +96,8 @@ export class AdminService {
   // async readPermission() {}
 
   async grantRoleUser(rolesUsersGrantDto: RolesUsersGrantDto) {
-    // check role exist 
-    const getRolesAndUser = await this.rolesRepo.adminModuleGrantRoleUserGetRole(rolesUsersGrantDto.email)
+    // check exist 
+    const getRolesAndUser = await this.rolesRepo.adminModuleGrantRevokeRoleUserGetRole(rolesUsersGrantDto.email)
     const userId = getRolesAndUser[0].userId;
     const userEmail = getRolesAndUser[0].userEmail;
     const roleName = getRolesAndUser.map((i) => i.roleName);
@@ -109,7 +110,18 @@ export class AdminService {
   }
 
   async revokeRoleUser(rolesUsersRevokeDto: RolesUsersRevokeDto) {
-    
+    // check exist 
+    const getRolesAndUser = await this.rolesRepo.adminModuleGrantRevokeRoleUserGetRole(rolesUsersRevokeDto.email)
+    const userId = getRolesAndUser[0].userId;
+    const userEmail = getRolesAndUser[0].userEmail;
+    const roleName = getRolesAndUser.map((i) => i.roleName);
+    if(userEmail != rolesUsersRevokeDto.email) return 'user not found';
+    if(rolesUsersRevokeDto.role.some(i => !roleName.includes(i))) return 'role not existed';
+
+    if(rolesUsersRevokeDto.role.some(i => "Director")) await this.revokeRoleUserIfDirector(userId);
+    if(rolesUsersRevokeDto.role.some(i => "Manager")) await this.revokeRoleUserIfManager(userId);
+    if(rolesUsersRevokeDto.role.some(i => "Hr")) await this.revokeRoleUserIfHr(userId);
+
   }
 
   async grantRolePermission() {}
@@ -129,5 +141,17 @@ export class AdminService {
   async grantRoleUserIfDirector(userId: string) {
     const grantHr = await this.grantRoleUserIfHr(userId);
     const grantManager = await this.grantRoleUserIfManager(userId);
+  }
+
+  async revokeRoleUserIfHr(userId: string) {
+    return await this.rolesUsersRepo.adminModuleRevokeRoleUserIfHr(userId);
+  }
+
+  async revokeRoleUserIfManager(userId: string) {
+    return await this.rolesUsersRepo.adminModuleRevokeRoleUserIfManagerOrDirector(userId, 'Manager' as RoleEnum)
+  }
+
+  async revokeRoleUserIfDirector(userId: string) {
+    return await this.rolesUsersRepo.adminModuleRevokeRoleUserIfManagerOrDirector(userId, 'Director' as RoleEnum)
   }
 }

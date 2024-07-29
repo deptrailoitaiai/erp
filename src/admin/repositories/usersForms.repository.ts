@@ -55,4 +55,13 @@ export class UsersFormsRepository {
             formId: { formId: i }
         })))
     }
+
+    async adminModuleRevokeRoleUserRevokeApproveForm(userId: string) {
+        const revoke = await this.usersFormsRepo
+            .createQueryBuilder()
+            .delete()
+            .from(UsersFormsEntity)
+            .where('user_id = :userId', { userId: userId })
+            .execute();
+    }
 }

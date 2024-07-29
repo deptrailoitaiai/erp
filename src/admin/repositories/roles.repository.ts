@@ -19,7 +19,7 @@ export class RolesRepository {
         return createRole;
     }
 
-    async adminModuleGrantRoleUserGetRole(userEmail: string) {
+    async adminModuleGrantRevokeRoleUserGetRole(userEmail: string) {
         const getRoles = await this.rolesRepo
             .createQueryBuilder('rs')
             .leftJoin(RolesUsersEntity, 'ru', 'ru.role_id = rs.role_id')
