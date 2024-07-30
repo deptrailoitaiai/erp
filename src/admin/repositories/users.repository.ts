@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersEntity } from '../entities/users.entity';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { RolesUsersEntity } from '../entities/rolesUsers.entity';
 import { RolesEntity } from '../entities/roles.entity';
 import { loginFormDto } from 'src/authentication/dto/loginForm.dto';
@@ -52,25 +52,26 @@ export class UsersRepository {
 
   async authenticationModuleLogin(loginFormDto: loginFormDto) {
     const getEmailPassword = await this.usersRepo
-      .createQueryBuilder('users')
+      .createQueryBuilder('us')
       .leftJoin(
         RolesUsersEntity,
-        'rolesUsers',
-        'rolesUsers.user_id = users.user_id',
+        'ru',
+        'ru.user_id = us.user_id',
       )
-      .leftJoin(RolesEntity, 'roles', 'roles.role_id = rolesUsers.role_id')
-      .select('users.user_id', 'userId')
-      .addSelect('users.user_password', 'password')
-      .addSelect('roles.role_name', 'role')
-      .getRawMany();
-    return getEmailPassword;
+      .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
+      .select('us.user_id', 'userId')
+      .addSelect('us.user_password', 'password')
+      .addSelect('rs.role_name', 'role')
+      .where('us.user_email = :userEmail', { userEmail: loginFormDto.email })
+      console.log(getEmailPassword.getQueryAndParameters());
+    return await getEmailPassword.getRawMany();;
   }
 
   async adminModuleCreateUserCheckUserExists(createUserDto: CreateUserDto) {
     const getUser = await this.usersRepo.findOneBy({
       userEmail: createUserDto.userEmail,
     });
-    if (!getUser.userEmail) return false;
+    if (!getUser) return false;
 
     return true;
   }
@@ -118,75 +119,68 @@ export class UsersRepository {
     });
     if (!findUser) return 'user not found';
     // Xóa từ bảng UsersFormsEntity
-    await this.usersRepo
+    const a = await this.usersRepo
       .createQueryBuilder('us')
-      .leftJoin(UsersFormsEntity, 'ufs', 'ufs.user_id = us.user_id')
       .delete()
       .from(UsersFormsEntity)
-      .where('us.user_email = :userEmail', {
-        userEmail: deleteUserDto.userEmail,
+      .where('user_Id = :userId', {
+        userId: findUser.userId,
       })
       .execute();
 
     // Xóa từ bảng UserInformationsEntity
-    await this.usersRepo
-      .createQueryBuilder('us')
-      .leftJoin(UserInformationsEntity, 'uis', 'uis.user_id = us.user_id')
+    const informationId = await this.userInformationRepo.adminModuleDeleteUserGetInformationId(findUser.userId);
+    console.log(informationId)
+    
+    const b = await this.usersRepo
+      .createQueryBuilder()
       .delete()
       .from(UserInformationsEntity)
-      .where('us.user_email = :userEmail', {
-        userEmail: deleteUserDto.userEmail,
+      .where('user_id = :userId', {
+        userId: findUser.userId,
       })
       .execute();
 
     // Xóa từ bảng RolesUsersEntity
-    await this.usersRepo
-      .createQueryBuilder('us')
-      .leftJoin(RolesUsersEntity, 'ru', 'ru.user_id = us.user_id')
+    const c = await this.usersRepo
+      .createQueryBuilder()
       .delete()
       .from(RolesUsersEntity)
-      .where('us.user_email = :userEmail', {
-        userEmail: deleteUserDto.userEmail,
+      .where('user_id = :userId', {
+        userId: findUser.userId,
       })
       .execute();
 
     // Xóa từ bảng FormsEntity với thông tin được tạo bởi user
-    await this.usersRepo
-      .createQueryBuilder('us')
-      .leftJoin(FormsEntity, 'fsus', 'fsus.create_by = us.user_id')
+    const d = await this.usersRepo
+      .createQueryBuilder()
       .update(FormsEntity)
       .set({ createBy: { userId: null }})
-      .where('us.user_email = :userEmail', {
-        userEmail: deleteUserDto.userEmail,
+      .where('informationId = :informationId', {
+        informationId: informationId.informationId,
       })
-      .execute();
+      await d.execute()
 
     // Xóa từ bảng FormsEntity với thông tin được liên kết qua UserInformationsEntity
-    await this.usersRepo
-      .createQueryBuilder('us')
-      .leftJoin(UserInformationsEntity, 'uis', 'uis.user_id = us.user_id')
-      .leftJoin(
-        FormsEntity,
-        'fsuis',
-        'fsuis.information_id = uis.information_id',
-      )
+    const e = await this.usersRepo
+      .createQueryBuilder()
       .delete()
       .from(FormsEntity)
-      .where('us.user_email = :userEmail', {
-        userEmail: deleteUserDto.userEmail,
+      .where('information_id = :informationId', {
+        informationId: informationId.informationId,
       })
       .execute();
 
     // Cuối cùng, xóa từ bảng UsersEntity
-    await this.usersRepo
-      .createQueryBuilder('us')
+    const f = await this.usersRepo
+      .createQueryBuilder()
       .delete()
       .from(UsersEntity)
-      .where('us.user_email = :userEmail', {
+      .where('user_email = :userEmail', {
         userEmail: deleteUserDto.userEmail,
       })
       .execute();
 
-    return
+    return 'deteted'
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInformationsEntity } from '../entities/userInformations.entity';
-import { Repository } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { FormsEntity } from '../entities/forms.entity';
 import { SaveInformationDto } from 'src/informations/dtos/saveInformation.dto';
 import { UsersEntity } from '../entities/users.entity';
@@ -16,14 +16,14 @@ export class UserInformationsRepository {
   async formsModuleOpenFormAnnualGetInformationPresave() {
     return await this.userInformationsRepo
       .createQueryBuilder()
-      .where('probation = :boolean', { boolean: false })
+      .where('probation = :boolean', { boolean: 0 })
       .getMany();
   }
 
   async formsModuleOpenFormProbationGetInformationPresave() {
     return await this.userInformationsRepo
       .createQueryBuilder()
-      .where('probation = :boolean', { boolean: true })
+      .where('probation = :boolean', { boolean: 1 })
       .getMany();
   }
 
@@ -70,8 +70,16 @@ export class UserInformationsRepository {
       userId: { userId: usersEntity.userId },
       name: usersEntity.userName,
       email: usersEntity.userEmail,
-      role: role,
+      role: role === undefined ? "Employee": role,
       probaton: true
     }))
+  }
+
+  async adminModuleDeleteUserGetInformationId(userId: string) {
+    return await this.userInformationsRepo
+     .createQueryBuilder()
+     .select()
+     .where('user_id = :userId', { userId: userId })
+     .getOne();
   }
 }

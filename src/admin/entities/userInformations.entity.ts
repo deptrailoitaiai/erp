@@ -20,10 +20,10 @@ export class UserInformationsEntity {
     @Column({ name: "role" , nullable: false })
     role: string;
 
-    @Column({ name: "citizen_id", unique: true })
+    @Column({ name: "citizen_id", unique: true, nullable: true })
     citizenId: string;
 
-    @Column({ name: "address", type: "text" })
+    @Column({ name: "address", type: "text", nullable: true })
     address: string;
 
     @Column({ name: "probation", type: "boolean", nullable: false })

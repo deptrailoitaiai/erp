@@ -10,6 +10,7 @@ export class JsonwebtokenService {
     async checkRoleByAccessToken(accessToken: string, roleExpect: string[]) {
         try {
             const payload: { sub: string, role: string[] } = await this.jwtService.verifyAsync(accessToken)
+            console.log(payload)
 
             if(payload.role.some(i => roleExpect.includes(i))) return payload.sub;
 

@@ -17,6 +17,7 @@ import { CheckFormNotSubmitDto } from '../dtos/checkFormNotsubmit.dto';
 import { ApproveFormDto } from '../dtos/approveForm.dto';
 import { JsonwebtokenService } from 'src/authentication/service/jwt.service';
 import { Request } from 'express';
+import { responseSuccess } from 'src/config/response';
 
 @Controller('/forms')
 export class FormsController {
@@ -51,16 +52,23 @@ export class FormsController {
     );
     if (!guard) return new UnauthorizedException();
 
-    if (sendEmailDto.specificEmail.length > 0)
-      return await this.formsService.sendEmailSpecificUser(
+    console.log(sendEmailDto.specificEmail)
+
+    if (sendEmailDto.specificEmail && sendEmailDto.specificEmail.length > 0) {
+      const a = await this.formsService.sendEmailSpecificUser(
         sendEmailDto.formType,
         sendEmailDto.specificEmail,
       );
+      return responseSuccess({message: "mail sent"})
+    }
 
-    if (sendEmailDto.resubmit)
-      return await this.formsService.sendEmailResubmit(sendEmailDto.formType);
+    if (sendEmailDto.resubmit && sendEmailDto.resubmit == true){
+      const b = await this.formsService.sendEmailResubmit(sendEmailDto.formType);
+      return responseSuccess({message: "mail sent"})
+    }
 
-    return await this.formsService.sendEmailAll(sendEmailDto.formType);
+    const c = await this.formsService.sendEmailAll(sendEmailDto.formType);
+    return responseSuccess({message: "mail sent"})
   }
 
   @Post('/annual/:formId/submit')
@@ -84,7 +92,7 @@ export class FormsController {
       probationFormDto,
       formId,
     );
-    return 'submitted';
+    return responseSuccess(probationFormDto);
   }
 
   @Post('/checkFormNotSubmit')
@@ -101,7 +109,7 @@ export class FormsController {
     const emails = await this.formsRepo.formModuleGetEmailNotSubmitForm(
       checkFormNotSubmitDto.formType,
     );
-    return 'list email not submitted';
+    return responseSuccess(emails);
   }
 
   @Get('/getListFormSubmitted')
@@ -113,11 +121,14 @@ export class FormsController {
     if (!guard) return new UnauthorizedException();
 
     const getListForm = await this.formsRepo.formModuleGetFormSubmited();
-    return 'list form';
+    return responseSuccess(getListForm);
   }
 
   @Post('/approveForm')
-  async approveForm(@Body() approveFormDto: ApproveFormDto, @Req() req: Request) {
+  async approveForm(
+    @Body() approveFormDto: ApproveFormDto,
+    @Req() req: Request,
+  ) {
     const guard = await this.jsonwebtokenService.checkRoleByAccessToken(
       req.cookies['access_token'],
       ['Hr', 'Director', 'Admin'],
@@ -126,5 +137,7 @@ export class FormsController {
 
     const approveForm =
       await this.formsRepo.formModuleApproveForm(approveFormDto);
+
+    return responseSuccess(approveFormDto)
   }
 }

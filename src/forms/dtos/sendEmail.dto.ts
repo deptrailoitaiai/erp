@@ -18,7 +18,7 @@ export class SendEMailDto {
 
     @IsBoolean()
     @IsOptional()
-    @ValidateNested({ each: true })
-    resubmit?: resubmit;
+    // @ValidateNested({ each: true })
+    resubmit?: boolean;
 }
 

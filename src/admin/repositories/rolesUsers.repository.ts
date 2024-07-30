@@ -20,23 +20,15 @@ export class RolesUsersRepository {
     const roleArray = roles.split(',');
     roleArray.push('Employee');
 
-    const getRoleIds = await this.rolesUsersRepo
-      .createQueryBuilder('ru')
-      .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
-      .select('ru.role_id', 'roleId')
-      .where('rs.role_name = (:...roleName)', { roleName: roleArray })
-      .getRawMany();
-    const rolesIds = getRoleIds.map((i) => i.roleId);
+    const getRoleIds = await this.rolesRepo.adminModuleCreateUserGetRoleId(roles)
+  
+    const rolesIds = (getRoleIds).map((i) => i.roleId);
+    console.log(getRoleIds);
     return rolesIds;
   }
 
   async adminModuleCreateUserGetDefaultRoleId() {
-    const getRoleDefaultId: { roleId: string } = await this.rolesUsersRepo
-      .createQueryBuilder('ru')
-      .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
-      .select('ru.role_id', 'roleId')
-      .where('rs.role_name = :Employee', { Employee: 'Employee' })
-      .getRawOne();
+    const getRoleDefaultId = await this.rolesRepo.adminModuleCreateUserGetDefaultRoleId();
     return getRoleDefaultId.roleId.split(' ');
   }
 
@@ -87,24 +79,28 @@ export class RolesUsersRepository {
   }
 
   async adminModuleRevokeRoleUserIfHr(userId: string) {
+    const getRoleId = await this.rolesRepo.getRoleId("Hr");
+
     const revoke = await this.rolesUsersRepo
-      .createQueryBuilder('ru')
-      .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
+      .createQueryBuilder()
       .delete()
       .from(RolesUsersEntity)
-      .where('rs.role_name = :Hr', { Hr: 'Hr' })
+      .where('role_id = :roleId', { roleId: getRoleId })
+      .andWhere('user_id = :userId', { userId: userId})
       .execute();
 
     return;
   }
 
   async adminModuleRevokeRoleUserIfManagerOrDirector(userId: string, role: RoleEnum) {
-    const revoke = await this.rolesUsersRepo
-      .createQueryBuilder('ru')
-      .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
+    const getRoleId = await this.rolesRepo.getRoleId(role);
+
+      const revoke = await this.rolesUsersRepo
+      .createQueryBuilder()
       .delete()
       .from(RolesUsersEntity)
-      .where('rs.role_name = :role', { role: role })
+      .where('role_id = :roleId', { roleId: getRoleId })
+      .andWhere('user_id = :userId', { userId: userId })
       .execute();
 
     const revokeApproveForm =

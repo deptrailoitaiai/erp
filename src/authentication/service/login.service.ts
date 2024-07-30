@@ -13,8 +13,9 @@ export class LoginService {
 
     async login(loginFormDto: loginFormDto) {
         const getIdPassword = await this.usersRepo.authenticationModuleLogin(loginFormDto)
-        if(!getIdPassword[0].userId) return ('Invalid email')
-        
+        console.log(getIdPassword)
+        if(getIdPassword.length == 0) return ('Invalid email')
+
         const checkPassword = await bcrypt.compare(loginFormDto.password, getIdPassword[0].password)
         if(!checkPassword) return ('Invalid password')
 
@@ -22,8 +23,6 @@ export class LoginService {
         const roles = getIdPassword.map(i => i.role)
 
         const payload = { sub: userId, role: roles } // role name ?
-
         return await this.jwtService.signAsync(payload)
-        
     }
 }

@@ -5,6 +5,8 @@ import { AnnualResubmitEmail } from 'src/config/annualResubmitEmail';
 import { AnnualSubmitEmail } from 'src/config/annualSubmitEmail';
 import { ProbationResubmitEmail } from 'src/config/probationResubmitEmail';
 import { ProbationSubmitEmail } from 'src/config/probationSubmitEmail';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class MailService {

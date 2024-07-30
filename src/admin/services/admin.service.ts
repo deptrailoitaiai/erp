@@ -44,7 +44,7 @@ export class AdminService {
     );
 
     // grant approve form to user has right role
-    if (
+    if (createUserDto.userRole &&
       createUserDto.userRole
         .split(',')
         .some((i) => ['Manager', 'Director', 'Admin'].includes(i))
@@ -61,8 +61,7 @@ export class AdminService {
     // create user infomation
     const createUserInformation = await this.userInformationRepo.adminModuleCreateUserCreateUserInfor(saveuser, createUserDto.userRole)
 
-
-    return 'user and role created';
+    return saveuser;
   }
 
   async deleteUser(deleteUserDto: DeleteUserDto) {

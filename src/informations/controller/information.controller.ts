@@ -12,6 +12,7 @@ import { SaveInformationDto } from '../dtos/saveInformation.dto';
 import { UserInformationsRepository } from 'src/admin/repositories/userInfomations.repository';
 import { Request } from 'express';
 import { JsonwebtokenService } from 'src/authentication/service/jwt.service';
+import { responseSuccess } from 'src/config/response';
 
 @Controller('/information')
 export class InformationController {
@@ -38,7 +39,7 @@ export class InformationController {
       saveInformationDto,
     );
 
-    return 'saved';
+    return responseSuccess(saveInformationDto)
   }
 
   @Get('/getInformation')
@@ -51,6 +52,6 @@ export class InformationController {
     const getInfor =
       await this.userInformationRepo.infomationModuleRead(userId);
 
-    return 'data';
+    return responseSuccess(getInfor);
   }
 }

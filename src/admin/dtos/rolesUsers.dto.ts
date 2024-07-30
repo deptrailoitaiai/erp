@@ -1,10 +1,11 @@
-import { IsString } from "class-validator";
+import { IsArray, IsString } from "class-validator";
 
 export class RolesUsersGrantDto {
     @IsString()
     email: string;
 
-    @IsString()
+    @IsArray()
+    @IsString({ each: true })
     role: string[]
 }
 
@@ -12,6 +13,7 @@ export class RolesUsersRevokeDto {
     @IsString()
     email: string;
 
-    @IsString()
-    role: string[]
+    @IsArray()
+    @IsString({ each: true })
+    role: string[];
 }

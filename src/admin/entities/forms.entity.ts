@@ -28,22 +28,22 @@ export class FormsEntity {
     @CreateDateColumn({ name: "year" })
     year: Date;
 
-    @Column({ name: "achievement", type: "text" })
+    @Column({ name: "achievement", type: "text", nullable: true })
     achievement: string;
 
-    @Column({ name: "performance", type: "tinyint" })
+    @Column({ name: "performance", type: "tinyint", nullable: true })
     performance: number;
 
-    @Column({ name: "productivity", type: "tinyint" })
+    @Column({ name: "productivity", type: "tinyint", nullable: true })
     productivity: number;
 
-    @Column({ name: "user_opinion", type: "text" })
+    @Column({ name: "user_opinion", type: "text", nullable: true })
     userOpinion: string;
 
-    @Column({ name: "superior_opinion", type: "text" })
+    @Column({ name: "superior_opinion", type: "text", nullable: true })
     superiorOpinion: string;
 
-    @Column({ name: "total", type: "tinyint" })
+    @Column({ name: "total", type: "tinyint", nullable: true })
     total: number;
 
     @OneToMany(() => UsersFormsEntity, usersFormsEntity => usersFormsEntity.formId)

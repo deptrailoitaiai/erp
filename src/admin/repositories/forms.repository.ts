@@ -28,6 +28,7 @@ export class FormsRepository {
     if (openFormDto.formType == 'Annual') {
       const getInfor =
         await this.userInformationRepo.formsModuleOpenFormAnnualGetInformationPresave();
+      console.log(getInfor);
       return await this.formsRepo.save(
         getInfor.map((i) =>
           this.formsRepo.create({
@@ -169,13 +170,18 @@ export class FormsRepository {
       .leftJoin(UserInformationsEntity, 'uis', 'uis.information_id = fs.information_id')
       .select('fs.form_id', 'formId')
       .addSelect('uis.email', 'email')
-      .addSelect('uis.year', 'year')
-      .addSelect('uis.achievement', 'achievement')
-      .addSelect('uis.performance', 'performance')
-      .addSelect('uis.productivity', 'productivity')
-      .addSelect('uis.superior_opinion', 'superiorOpinion')
-      .addSelect('uis.total', 'total')
-      .getMany();
+      .addSelect('fs.year', 'year')
+      .addSelect('fs.achievement', 'achievement')
+      .addSelect('fs.performance', 'performance')
+      .addSelect('fs.productivity', 'productivity')
+      .addSelect('fs.superior_opinion', 'superiorOpinion')
+      .addSelect('fs.total', 'total')
+      .where('fs.performance IS NOT NULL')
+      .orWhere('fs.productivity IS NOT NULL')
+      .orWhere('fs.user_opinion IS NOT NULL')
+      .getRawMany();
+      console.log(getListForm);
+      console.log('..........')
     return getListForm;
   }
 
@@ -186,6 +192,7 @@ export class FormsRepository {
         superiorOpinion: approveFormDto.superiorOpinion,
         total: approveFormDto.total
       })
+      .where('form_id = :formId', { formId: approveFormDto.formId })
       .execute()
     
     return approveForm
