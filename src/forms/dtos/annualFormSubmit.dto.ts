@@ -3,14 +3,18 @@ import { FormTypeEnum } from "src/admin/entities/forms.entity";
 
 export class AnnualFormDto {
     @IsString()
-    achievement: string;
+    @IsOptional()
+    achievement?: string;
 
     @IsInt()
-    performance: number;
+    @IsOptional()
+    performance?: number;
 
     @IsInt()
-    productivity: number;
+    @IsOptional()
+    productivity?: number;
 
     @IsString()
-    userOpinion: string;
+    @IsOptional()
+    userOpinion?: string;
 }

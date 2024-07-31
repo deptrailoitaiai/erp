@@ -16,6 +16,7 @@ export class MailService {
     resubmit: boolean,
     formId: string[]
   ): Promise<void> {
+    console.log(formType+"..............")
     if (formType === 'Annual') {
       await Promise.all(
         sendTo.map(async (email, i) => {

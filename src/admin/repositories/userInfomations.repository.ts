@@ -70,7 +70,7 @@ export class UserInformationsRepository {
       userId: { userId: usersEntity.userId },
       name: usersEntity.userName,
       email: usersEntity.userEmail,
-      role: role === undefined ? "Employee": role,
+      role: role === undefined ? "Employee": role+",Employee",
       probaton: true
     }))
   }

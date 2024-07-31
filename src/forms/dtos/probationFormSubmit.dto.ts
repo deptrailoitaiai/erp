@@ -3,11 +3,14 @@ import { FormTypeEnum } from "src/admin/entities/forms.entity";
 
 export class ProbationFormDto {
     @IsInt()
-    performance: number;
+    @IsOptional()
+    performance?: number;
 
     @IsInt()
-    productivity: number;
+    @IsOptional()
+    productivity?: number;
 
     @IsString()
-    userOpinion: string;
+    @IsOptional()
+    userOpinion?: string;
 }

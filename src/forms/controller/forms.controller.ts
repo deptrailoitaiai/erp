@@ -41,7 +41,7 @@ export class FormsController {
       openFormDto,
       userId,
     );
-    return 'sucessfully opened';
+    return responseSuccess({ message: "form opened"});
   }
 
   @Post('/sendEmail')
@@ -80,7 +80,7 @@ export class FormsController {
       annualFormDto,
       formId,
     );
-    return 'submitted';
+    return responseSuccess(annualFormDto);
   }
 
   @Post('/probation/:formId/submit')

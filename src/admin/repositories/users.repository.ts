@@ -43,11 +43,10 @@ export class UsersRepository {
       .leftJoin(RolesUsersEntity, 'ru', 'ru.user_id = u.user_id')
       .leftJoin(RolesEntity, 'r', 'r.role_id = ru.role_id')
       .select('u.user_id', 'userId')
-      .where('r.role_name = :Hr', { Hr: 'Hr' })
-      .orWhere('r.role_name = :Manager', { Manager: 'Manager' })
+      .where('r.role_name = :Manager', { Manager: 'Manager' })
       .orWhere('r.role_name = :Director', { Director: 'Director' })
-      .getMany();
-    return getSuperiorId;
+      .getRawMany();
+    return getSuperiorId.map(i => i.userId);
   }
 
   async authenticationModuleLogin(loginFormDto: loginFormDto) {

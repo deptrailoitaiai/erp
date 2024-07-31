@@ -145,6 +145,7 @@ export class FormsRepository {
     const roleSubmiter = await this.userInformationRepo.formModuleSubmitFormAfterSaveGetRoleSubmiter(formId);
     
     const getSuperiorId = await this.usersRepo.formModuleSubmitFormAfterSaveGetSuperiorId(roleSubmiter);
+    console.log(getSuperiorId)
 
     const formSubmitTo = await this.usersFormsRepo.formModuleSubmitFormAfterSaveSubmitTo(getSuperiorId, formId);
     return
