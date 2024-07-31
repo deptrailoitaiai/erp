@@ -5,10 +5,17 @@ import { CreateRoleDto } from './dtos/roles.dto';
 import { CreatePermissionDto } from './dtos/permissions.dto';
 import { RolesUsersGrantDto, RolesUsersRevokeDto } from './dtos/rolesUsers.dto';
 import { responseFail, responseSuccess } from 'src/config/response';
+import { UsersRepository } from './repositories/users.repository';
+import { SetProbationDto } from './dtos/setProbation.dto';
+import { UserInformationsRepository } from './repositories/userInfomations.repository';
 
 @Controller('admin')
 export class AdminController {
-  constructor(public readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly usersRepo: UsersRepository,
+    private readonly userInformationsRepo: UserInformationsRepository
+  ) {}
 
   @Post('/user/create')
   async createUser(@Body() createUserDto: CreateUserDto) {
@@ -35,8 +42,10 @@ export class AdminController {
   // @Post('/user/update')
   // async updateUser() {}
 
-  // @Get('/user/read')
-  // async readUser() {}
+  @Get('/user/read')
+  async readUser() {
+    return responseSuccess(await this.usersRepo.adminModuleReadUser())
+  }
 
   @Post('/role/create')
   async createRole(@Body() createRoleDto: CreateRoleDto) {
@@ -94,4 +103,13 @@ export class AdminController {
 
   @Post('/rolePermission/revoke')
   async revokeRolePermission() {}
+
+  @Post('/setProbation')
+  async setProbation(@Body() setProbationDto: SetProbationDto) {
+    const setProbation = await this.userInformationsRepo.adminModuleSetProbation(setProbationDto)
+    if(setProbation == 1) return responseFail(404, 'user not found')
+    if(setProbation == 2) return responseFail(409, 'this status is already set')
+
+    return responseSuccess(setProbation)
+  }
 }

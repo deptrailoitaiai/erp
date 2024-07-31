@@ -46,24 +46,20 @@ export class UsersRepository {
       .where('r.role_name = :Manager', { Manager: 'Manager' })
       .orWhere('r.role_name = :Director', { Director: 'Director' })
       .getRawMany();
-    return getSuperiorId.map(i => i.userId);
+    return getSuperiorId.map((i) => i.userId);
   }
 
   async authenticationModuleLogin(loginFormDto: loginFormDto) {
     const getEmailPassword = await this.usersRepo
       .createQueryBuilder('us')
-      .leftJoin(
-        RolesUsersEntity,
-        'ru',
-        'ru.user_id = us.user_id',
-      )
+      .leftJoin(RolesUsersEntity, 'ru', 'ru.user_id = us.user_id')
       .leftJoin(RolesEntity, 'rs', 'rs.role_id = ru.role_id')
       .select('us.user_id', 'userId')
       .addSelect('us.user_password', 'password')
       .addSelect('rs.role_name', 'role')
-      .where('us.user_email = :userEmail', { userEmail: loginFormDto.email })
-      console.log(getEmailPassword.getQueryAndParameters());
-    return await getEmailPassword.getRawMany();;
+      .where('us.user_email = :userEmail', { userEmail: loginFormDto.email });
+    console.log(getEmailPassword.getQueryAndParameters());
+    return await getEmailPassword.getRawMany();
   }
 
   async adminModuleCreateUserCheckUserExists(createUserDto: CreateUserDto) {
@@ -128,9 +124,12 @@ export class UsersRepository {
       .execute();
 
     // Xóa từ bảng UserInformationsEntity
-    const informationId = await this.userInformationRepo.adminModuleDeleteUserGetInformationId(findUser.userId);
-    console.log(informationId)
-    
+    const informationId =
+      await this.userInformationRepo.adminModuleDeleteUserGetInformationId(
+        findUser.userId,
+      );
+    console.log(informationId);
+
     const b = await this.usersRepo
       .createQueryBuilder()
       .delete()
@@ -154,11 +153,11 @@ export class UsersRepository {
     const d = await this.usersRepo
       .createQueryBuilder()
       .update(FormsEntity)
-      .set({ createBy: { userId: null }})
+      .set({ createBy: { userId: null } })
       .where('informationId = :informationId', {
         informationId: informationId.informationId,
-      })
-      await d.execute()
+      });
+    await d.execute();
 
     // Xóa từ bảng FormsEntity với thông tin được liên kết qua UserInformationsEntity
     const e = await this.usersRepo
@@ -180,6 +179,12 @@ export class UsersRepository {
       })
       .execute();
 
-    return 'deteted'
+    return 'deteted';
+  }
+
+  async adminModuleReadUser() {
+    return (await this.usersRepo.find()).map((i) => {
+      return { userId: i.userId, userEmail: i.userEmail };
+    });
   }
 }

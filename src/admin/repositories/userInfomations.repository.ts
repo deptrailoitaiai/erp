@@ -5,6 +5,7 @@ import { createQueryBuilder, Repository } from 'typeorm';
 import { FormsEntity } from '../entities/forms.entity';
 import { SaveInformationDto } from 'src/informations/dtos/saveInformation.dto';
 import { UsersEntity } from '../entities/users.entity';
+import { SetProbationDto } from '../dtos/setProbation.dto';
 
 @Injectable()
 export class UserInformationsRepository {
@@ -81,5 +82,20 @@ export class UserInformationsRepository {
      .select()
      .where('user_id = :userId', { userId: userId })
      .getOne();
+  }
+
+  async adminModuleSetProbation(setProbationDto: SetProbationDto) {
+    const find = await this.userInformationsRepo.findOneBy({ email: setProbationDto.userEmail })
+    if(!find) return 1
+
+    if(Boolean(find.probaton) === setProbationDto.setProbation) return 2
+
+    const update = await this.userInformationsRepo
+      .createQueryBuilder()
+      .update(UserInformationsEntity)
+      .set({ probaton: setProbationDto.setProbation })
+      .where('email = :email', { email: setProbationDto.userEmail })
+      .execute()
+    return update
   }
 }
