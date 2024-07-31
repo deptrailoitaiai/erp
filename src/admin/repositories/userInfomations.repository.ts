@@ -98,4 +98,37 @@ export class UserInformationsRepository {
       .execute()
     return update
   }
+
+  async adminModuleRevokeRoleUserDeleteRole(userId: string, roleName: string) {
+    const roleNameToArray = roleName.split(',')
+    const getRole: { role: string } = await this.userInformationsRepo
+      .createQueryBuilder()
+      .select('role', 'role')
+      .where('user_id = :userId', { userId: userId })
+      .getRawOne()
+
+    const roles = getRole.role.split(',')
+    const newRole = roles.filter((p) => !roleNameToArray.includes(p))
+    const update = await this.userInformationsRepo
+      .createQueryBuilder()
+      .update(UserInformationsEntity)
+      .set({ role: newRole.join(',') })
+      .where('user_id = :userId', { userId: userId })
+      .execute(); 
+  }
+
+  async adminModuleGrantRoleUserAddRole(userId: string, roleName: string) {
+    const getRole: { role: string } = await this.userInformationsRepo
+      .createQueryBuilder()
+      .select('role', 'role')
+      .where('user_id = :userId', { userId: userId })
+      .getRawOne()
+    
+    const update = await this.userInformationsRepo
+      .createQueryBuilder()
+      .update(UserInformationsEntity)
+      .set({ role: getRole.role + `,${roleName}`})
+      .where('user_id = :userId', { userId: userId })
+      .execute();
+  }
 }

@@ -183,8 +183,18 @@ export class UsersRepository {
   }
 
   async adminModuleReadUser() {
-    return (await this.usersRepo.find()).map((i) => {
-      return { userId: i.userId, userEmail: i.userEmail };
-    });
+    const a = await this.usersRepo
+      .createQueryBuilder('us')
+      .leftJoin(UserInformationsEntity, 'uis', 'uis.user_id = us.user_id')
+      .select('us.user_id', 'userId')
+      .addSelect('us.user_email', 'userEmail')
+      .addSelect('uis.role', 'role')
+      .getRawMany();
+
+    return (a.map((p) => {return {
+      userId: p.userId,
+      userEmail: p.userEmail,
+      role: p.role
+    }}))
   }
 }

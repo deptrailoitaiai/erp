@@ -6,6 +6,7 @@ import { RoleEnum, RolesEntity } from '../entities/roles.entity';
 import { CreateUserDto } from '../dtos/users.dto';
 import { RolesRepository } from './roles.repository';
 import { UsersFormsRepository } from './usersForms.repository';
+import { UserInformationsRepository } from './userInfomations.repository';
 
 @Injectable()
 export class RolesUsersRepository {
@@ -14,6 +15,7 @@ export class RolesUsersRepository {
     private readonly rolesUsersRepo: Repository<RolesUsersEntity>,
     private readonly rolesRepo: RolesRepository,
     private readonly usersFormsRepo: UsersFormsRepository,
+    private readonly userInformationsRepo: UserInformationsRepository
   ) {}
 
   async adminModuleCreateUserGetRoleId(roles: string) {
@@ -86,8 +88,10 @@ export class RolesUsersRepository {
       .delete()
       .from(RolesUsersEntity)
       .where('role_id = :roleId', { roleId: getRoleId })
-      .andWhere('user_id = :userId', { userId: userId})
+      .andWhere('user_id = :userId', { userId: userId })
       .execute();
+      
+    const updateUserInformation = await this.userInformationsRepo.adminModuleRevokeRoleUserDeleteRole(userId, "Hr");
 
     return;
   }
@@ -107,6 +111,8 @@ export class RolesUsersRepository {
       await this.usersFormsRepo.adminModuleRevokeRoleUserRevokeApproveForm(
         userId,
       );
+
+    const updateUserInformation = await this.userInformationsRepo.adminModuleRevokeRoleUserDeleteRole(userId, role);
     
     return;
   }
